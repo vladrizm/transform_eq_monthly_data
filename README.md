@@ -1,2 +1,9 @@
 # transform_eq_monthly_data
-Transforming EQ monthly data.
+
+## Purpose:
+
+Transforming EQ monthly data for easier PBI reporting.
+
+## Data:
+
+For internal use only.
