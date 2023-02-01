@@ -30,7 +30,7 @@ n_files <- length(list_of_sheets)
 
 ## Update vector with new date for monthly file. UPDATE!!!----
 
-dates_01 <- c("1/12/2017","1/04/2018", "1/05/2018", "1/06/2018", "1/07/2018", "1/08/2018", "1/09/2018", "1/10/2018", "1/11/2018", "1/12/2018","1/01/2019", "1/02/2019", "1/03/2019", "1/04/2019", "1/05/2019", "1/06/2019", "1/07/2019", "1/08/2019", "1/09/2019", "1/10/2019", "1/11/2019", "1/12/2019", "1/01/2020", "1/02/2020", "1/03/2020", "1/04/2020", "1/05/2020", "1/06/2020", "1/07/2020", "1/08/2020", "1/09/2020", "1/10/2020", "1/11/2020", "1/12/2020", "1/01/2021", "1/02/2021", "1/03/2021", "1/04/2021", "1/05/2021", "1/06/2021", "1/07/2021", "1/08/2021", "1/09/2021", "1/10/2021", "1/11/2021", "1/12/2021", "1/01/2022", "1/02/2022", "1/03/2022", "1/04/2022", "1/05/2022", "1/06/2022", "1/07/2022", "1/08/2022", "1/09/2022")
+dates_01 <- c("1/12/2017","1/04/2018", "1/05/2018", "1/06/2018", "1/07/2018", "1/08/2018", "1/09/2018", "1/10/2018", "1/11/2018", "1/12/2018","1/01/2019", "1/02/2019", "1/03/2019", "1/04/2019", "1/05/2019", "1/06/2019", "1/07/2019", "1/08/2019", "1/09/2019", "1/10/2019", "1/11/2019", "1/12/2019", "1/01/2020", "1/02/2020", "1/03/2020", "1/04/2020", "1/05/2020", "1/06/2020", "1/07/2020", "1/08/2020", "1/09/2020", "1/10/2020", "1/11/2020", "1/12/2020", "1/01/2021", "1/02/2021", "1/03/2021", "1/04/2021", "1/05/2021", "1/06/2021", "1/07/2021", "1/08/2021", "1/09/2021", "1/10/2021", "1/11/2021", "1/12/2021", "1/01/2022", "1/02/2022", "1/03/2022", "1/04/2022", "1/05/2022", "1/06/2022", "1/07/2022", "1/08/2022", "1/09/2022", "1/10/2022", "1/11/2022","1/12/2022")
 
 dates_01 <- as.Date(dates_01, "%d/%m/%Y")
 
@@ -100,13 +100,14 @@ spot_cargoes <- function(df_01){
 # spot_cargoes(df_test)
 
 ### Select only files with spot cargo data
-data_lng_exports_7_53 <- list()
+## 7_x stands for: from the 7th file to the last file x in the folder
+data_lng_exports_7_x <- list()
 for(i in 7:n_files) {
-  data_lng_exports_7_53[[i]] <- spot_cargoes(data_lng_exports[[i]])
+  data_lng_exports_7_x[[i]] <- spot_cargoes(data_lng_exports[[i]])
 }
 
 ### rbind all data
-data_lng_spot <- do.call("rbind",data_lng_exports_7_53)
+data_lng_spot <- do.call("rbind",data_lng_exports_7_x)
 colnames(data_lng_spot) <- c("PROJECT", "CARGOES", "Date", "File name")
 
 #   lapply(data_lng_exports, `[`, c(7:53))
@@ -123,8 +124,10 @@ au_delivery <- function(df){
   proj <- unique(unlist(df[uniq_01,2:(length(df) - 5)]))
   proj <- proj[!is.na(proj)]
   n_proj <- length(proj)
-  a = stringr::str_detect(c,"PROJECT:")
-  a = which(a) + 2
+  # a = stringr::str_detect(c,"PROJECT:") ## Removed, can be used if the order of the countries becomes random.
+  # a = which(a) + 2 ## Removed, can be used if the order of the countries becomes random.
+  a = stringr::str_detect(c,"China")
+  a = which(a)
   df_sub <- df[a:nrow(df),]
   c_01 <- unlist(df_sub[,1])
   b = which(stringr::str_detect(c_01,"TOTAL")) - 1
@@ -149,10 +152,12 @@ au_delivery <- function(df){
   df[,2:3] <- purrr::map_df(df[,2:3], as.numeric)
   return(df)
 }
-# au_delivery(data_lng_exports[[37]])
+###___________________test
+# au_delivery(data_lng_exports[[58]])
 # df <- data_lng_exports[[53]]
+###___________________test
 
-### Select only files with spot cargo data
+### Select only files with delivery data
 data_lng_dest <- list()
 for(i in 1:n_files) {
   data_lng_dest[[i]] <- au_delivery(data_lng_exports[[i]])
@@ -304,9 +309,9 @@ colnames(data_nem_station) <- c("State", "Station","GWh", "Date", "File_name")
 ### Append new file ----
 
 # ### Update file name----
-# new_file_name <- ""
+# new_file_name <- "___file_name___"
 # 
-# new_file_path <- paste0("\\update path to \\Monthly Spreadsheets\\", new_file_name) 
+# new_file_path <- paste0("__path____", new_file_name) 
 # 
 # exports_data$date <- as.Date("1/08/2022", "%d/%m/%Y")
 # exports_data$file_name <- new_file_name
@@ -323,7 +328,7 @@ export_list <- list(data_shipment_01,
                     data_nem_fuel,
                     data_nem_station)
 names(export_list) <- c("data_shipment", "lng_dest", "lng_spot", "lng_import", "nem_fuel", "nem_station")
-openxlsx::write.xlsx(export_list, "EQ_Monthly_Data.xlsx")
+openxlsx::write.xlsx(export_list, "EnergyQuest_Monthly_Data.xlsx")
 
 
 
